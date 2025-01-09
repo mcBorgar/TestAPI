@@ -1,0 +1,16 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+
+.header {
+    background-color: aqua;
+    width: 100%;
+    height: 200px;
+}
+
+.body {
+    background-color: cadetblue;
+}
