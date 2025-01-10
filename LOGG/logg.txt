@@ -13,19 +13,24 @@ CREATE TABLE users (
 create new DATABASE
 TestAPI_
 
-CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    email VARCHAR(100) NOT NULL
+CREATE TABLE books (
+    book_id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(100) NOT NULL,
+    author VARCHAR(100) NOT NULL,
+    quantity INT NOT NULL
 );
 
-Forklaring:
+CREATE TABLE loans (
+    loan_id INT AUTO_INCREMENT PRIMARY KEY,
+    student VARCHAR(100) NOT NULL,
+    date DATE NOT NULL,
+    title VARCHAR(100) NOT NULL,
+    book_id INT NOT NULL,
+    FOREIGN KEY (book_id) REFERENCES books(book_id)
+);
 
-    id INT AUTO_INCREMENT PRIMARY KEY:
-    Lager en unik ID for hver rad automatisk.
-    name VARCHAR(50):
-    Kolonne for navn med maks 50 tegn.
-    email VARCHAR(100):
-    Kolonne for e-post med maks 100 tegn.
-    NOT NULL:
-    Sikrer at verdien ikke kan være tom.
+CREATE TABLE users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(50) NOT NULL
+);
