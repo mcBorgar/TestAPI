@@ -34,3 +34,8 @@ CREATE TABLE users (
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(50) NOT NULL
 );
+
+vs code
+github
+firefox
+terminal

@@ -11,19 +11,20 @@
     <h1>BOKUTLÅN</h1>
 </header>
     <main class="main">
-        <form id="bookForm" class="LeggInn">
+        <form id="bookForm" class="LeggInn" method="post" action="/api/books">
             <h1>LEGG INN</h1>
             <label for="title">Tittel:</label>
             <input type="text" id="title" name="title" required>
-
+          
             <label for="author">Forfatter:</label>
             <input type="text" id="author" name="author" required>
-
+          
             <label for="quantity">Antall:</label>
             <input type="number" id="quantity" name="quantity" required>
-
+          
             <button type="submit">LAGRE</button>
-        </form>
+          </form>
+          
 
         <form id="bookForm" class="LeggInn">
             <h1>LÅN UT</h1>
@@ -43,6 +44,8 @@
         </form>
     </main>
 </body>
+<script src="script.js"></script>
+
 </html>
 
 
