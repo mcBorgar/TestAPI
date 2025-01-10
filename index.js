@@ -14,3 +14,10 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Server kjører på http://localhost:${port}`);
 });
+
+// Middleware for å servere statiske filer
+app.use(express.static('public'));
+
+app.listen(port, () => {
+  console.log(`Server kjører på http://localhost:${port}`);
+});
