@@ -26,22 +26,19 @@
           </form>
           
 
-        <form id="bookForm" class="LeggInn">
+          <form id="loanForm" class="LeggInn" method="post" action="/api/loans">
             <h1>LÅN UT</h1>
             <label for="student">Elev:</label>
             <input type="text" id="student" name="student" required>
-
+          
             <label for="title2">Tittel:</label>
-            <input type="text" id="quantity" name="title2" required>
-
+            <input type="text" id="title2" name="title" required>
+          
             <label for="date">Dato:</label>
             <input type="date" id="date" name="date" required>
-
-            <!-- <label for="quantity2">Antall:</label>
-            <input type="number" id="quantity" name="quantity2" required> -->
-
+          
             <button type="submit">LAGRE</button>
-        </form>
+          </form>
     </main>
 </body>
 <script src="script.js"></script>
