@@ -34,7 +34,7 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Endepunkt for å legge inn bøker
+// Endepunkt for å legge inn bøker -----------------------------------------------------------------------
 app.post('/api/books', (req, res) => {
   const { title, author, quantity } = req.body;
 
@@ -51,51 +51,48 @@ app.post('/api/books', (req, res) => {
   });
 });
 
-// Endepunkt for å låne ut bøker
+// Endepunkt for å låne ut bøker -----------------------------------------------------------------------
 app.post('/api/loans', (req, res) => {
-  const { student, date, title } = req.body;
+  const { student, title, action } = req.body;
 
-  // Sjekk om boka finnes og har nok eksemplarer
-  const findBookSQL = 'SELECT * FROM books WHERE title = ?';
-  db.query(findBookSQL, [title], (err, results) => {
-    if (err) {
-      console.error('Feil ved sjekking av bok:', err.message);
-      return res.status(500).send({ message: 'Serverfeil. Prøv igjen senere.' });
-    }
-
-    if (results.length === 0) {
-      return res.status(404).send({ message: 'Bok finnes ikke i databasen.' });
-    }
-
-    const book = results[0];
-    if (book.quantity <= 0) {
-      return res.status(400).send({ message: 'Boka er ikke tilgjengelig for utlån.' });
-    }
-
-    // Legg inn i loans-tabellen
-    const insertLoanSQL = 'INSERT INTO loans (student, date, title, book_id) VALUES (?, ?, ?, ?)';
-    db.query(insertLoanSQL, [student, date, title, book.book_id], (err, loanResult) => {
+  if (action === 'return') {
+    // Sjekk om lånet eksisterer
+    const findLoanSQL = 'SELECT * FROM loans WHERE title = ? AND student = ?';
+    db.query(findLoanSQL, [title, student], (err, results) => {
       if (err) {
-        console.error('Feil ved lagring av lån:', err.message);
-        return res.status(500).send({ message: 'Kunne ikke registrere utlånet.' });
+        console.error('Feil ved sjekking av lån:', err.message);
+        return res.status(500).send({ message: 'Serverfeil. Prøv igjen senere.' });
       }
 
-      // Oppdater quantity i books-tabellen
-      const updateBookSQL = 'UPDATE books SET quantity = quantity - 1 WHERE book_id = ?';
-      db.query(updateBookSQL, [book.book_id], (err, updateResult) => {
+      if (results.length === 0) {
+        return res.status(404).send({ message: 'Ingen utlån funnet for denne boken og eleven.' });
+      }
+
+      // Fjern utlånet fra loans-tabellen
+      const deleteLoanSQL = 'DELETE FROM loans WHERE title = ? AND student = ?';
+      db.query(deleteLoanSQL, [title, student], (err, deleteResult) => {
         if (err) {
-          console.error('Feil ved oppdatering av bok:', err.message);
-          return res.status(500).send({ message: 'Kunne ikke oppdatere bokantall.' });
+          console.error('Feil ved sletting av lån:', err.message);
+          return res.status(500).send({ message: 'Kunne ikke fjerne utlånet.' });
         }
 
-        console.log('Lån registrert og bok oppdatert.');
-        res.status(200).send({ message: 'Lån registrert!' });
+        // Øk antall bøker i books-tabellen
+        const updateBookSQL = 'UPDATE books SET quantity = quantity + 1 WHERE title = ?';
+        db.query(updateBookSQL, [title], (err, updateResult) => {
+          if (err) {
+            console.error('Feil ved oppdatering av bokantall:', err.message);
+            return res.status(500).send({ message: 'Kunne ikke oppdatere bokantall.' });
+          }
+
+          console.log('Bok returnert og oppdatert i databasen.');
+          res.status(200).send({ message: 'Bok returnert!' });
+        });
       });
     });
-  });
+  } else {
+    res.status(400).send({ message: 'Ugyldig handling.' });
+  }
 });
-
-
 
 
 

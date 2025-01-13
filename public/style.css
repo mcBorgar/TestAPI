@@ -5,29 +5,47 @@
   }
 
 .header {
-    background-color: aqua;
+    background-color: rgb(189, 128, 48);
     height: 6rem;
-    border: 5px solid greenyellow;
+    /* border: 5px solid greenyellow; */
     display: flex;
     justify-content: left; 
+    font-size: 30px;
 }
 
 body {
-    background-color: cadetblue;
+    background-color: rgb(88, 102, 103);
 
 }
 .main {
-    border: 5px solid hotpink;
+    /* border: 5px solid hotpink;  */
     display: flex;
-    justify-content: center; 
+    justify-content: space-evenly;
 }
 
 .LeggInn {
+    background-color: rgb(128, 173, 175);
+    border-radius: 20px;
     display: flex;
     flex-direction: column;
-    width: 300px; 
-    border: 5px solid red;
+    width: 500px; 
+    font-size: 35px;
+    margin: 10px;
+    padding: 10px;
+    /* border: 5px solid red;  */
 }
+.LanUt {
+    background-color: rgb(128, 173, 175);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    width: 500px; 
+    font-size: 35px;
+    margin: 10px;
+    padding: 10px;
+    /* border: 5px solid green;  */
+}
+
 
 label {
     margin-bottom: 2px; 
