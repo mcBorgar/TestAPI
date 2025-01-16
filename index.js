@@ -16,7 +16,7 @@ app.use(express.static('public'));
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',        // Erstatt med ditt MySQL-brukernavn
-  password: 'password',        // Erstatt med ditt MySQL-passord
+  password: 'password', // Erstatt med ditt MySQL-passord
   database: 'TestAPI_' // Navnet på databasen du opprettet
 });
 
@@ -51,11 +51,60 @@ app.post('/api/books', (req, res) => {
   });
 });
 
-// Endepunkt for å låne ut bøker -----------------------------------------------------------------------
+// Endepunkt for å låne ut og returnere bøker ------------------------------------------------------------
 app.post('/api/loans', (req, res) => {
   const { student, title, action } = req.body;
 
-  if (action === 'return') {
+  if (action === 'loan') {
+    console.log('Starter utlånsprosessen for:', { student, title });
+
+    // Sjekk om boka finnes og har nok eksemplarer
+    const findBookSQL = 'SELECT * FROM books WHERE title = ?';
+    db.query(findBookSQL, [title], (err, results) => {
+      if (err) {
+        console.error('Feil ved sjekking av bok:', err.message);
+        return res.status(500).send({ message: 'Serverfeil. Prøv igjen senere.' });
+      }
+
+      console.log('Sjekker bok i databasen:', results);
+
+      if (results.length === 0) {
+        return res.status(404).send({ message: 'Bok finnes ikke i databasen.' });
+      }
+
+      const book = results[0];
+      if (book.quantity <= 0) {
+        return res.status(400).send({ message: 'Boka er ikke tilgjengelig for utlån.' });
+      }
+
+      console.log('Bok funnet, starter registrering av utlån:', book);
+
+      // Legg inn i loans-tabellen
+      const insertLoanSQL = 'INSERT INTO loans (student, title, book_id) VALUES (?, ?, ?)';
+      db.query(insertLoanSQL, [student, title, book.book_id], (err, loanResult) => {
+        if (err) {
+          console.error('Feil ved lagring av lån:', err.message);
+          return res.status(500).send({ message: 'Kunne ikke registrere utlånet.' });
+        }
+
+        console.log('Lån registrert:', loanResult);
+
+        // Oppdater quantity i books-tabellen
+        const updateBookSQL = 'UPDATE books SET quantity = quantity - 1 WHERE book_id = ?';
+        db.query(updateBookSQL, [book.book_id], (err, updateResult) => {
+          if (err) {
+            console.error('Feil ved oppdatering av bokantall:', err.message);
+            return res.status(500).send({ message: 'Kunne ikke oppdatere bokantall.' });
+          }
+
+          console.log('Bokantall oppdatert i databasen:', updateResult);
+          res.status(200).send({ message: 'Lån registrert!' });
+        });
+      });
+    });
+  } else if (action === 'return') {
+    console.log('Starter returprosessen for:', { student, title });
+
     // Sjekk om lånet eksisterer
     const findLoanSQL = 'SELECT * FROM loans WHERE title = ? AND student = ?';
     db.query(findLoanSQL, [title, student], (err, results) => {
@@ -67,6 +116,8 @@ app.post('/api/loans', (req, res) => {
       if (results.length === 0) {
         return res.status(404).send({ message: 'Ingen utlån funnet for denne boken og eleven.' });
       }
+
+      console.log('Lån funnet, starter retur.');
 
       // Fjern utlånet fra loans-tabellen
       const deleteLoanSQL = 'DELETE FROM loans WHERE title = ? AND student = ?';
@@ -94,9 +145,7 @@ app.post('/api/loans', (req, res) => {
   }
 });
 
-
-
-// Start serveren
+// Start serveren --------------------------------------------------------------------------------------
 app.listen(port, () => {
   console.log(`Server kjører på http://localhost:${port}`);
 });
