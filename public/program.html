@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bokutlånssystem</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:,">
 </head>
 <body>
   <header>
@@ -36,24 +37,21 @@
     </section>
 
     <!-- Låne og returnere bøker -->
-    <section id="loan-book-section">
-      <h2>Låne/Returnere bøker</h2>
-      <form id="loan-book-form">
-        <label for="student">Elev:</label>
-        <input type="text" id="student" name="student" required>
-        
-        <label for="book-title">Boktittel:</label>
-        <input type="text" id="book-title" name="book-title" required>
-        
-        <label for="action">Handling:</label>
-        <select id="action" name="action" required>
-          <option value="loan">Lån bok</option>
-          <option value="return">Returner bok</option>
-        </select>
-        
-        <button type="button" id="loan-book-button">Utfør</button>
-      </form>
-    </section>
+    <!-- Låne og returnere bøker -->
+<section id="loan-book-section">
+  <h2>Låne/Returnere bøker</h2>
+  <form id="loan-book-form">
+    <label for="student">Elev:</label>
+    <input type="text" id="student" name="student" required>
+    
+    <label for="book-title">Boktittel:</label>
+    <input type="text" id="book-title" name="book-title" required>
+    
+    <button type="button" id="loan-book-button">Lån bok</button>
+    <button type="button" id="return-book-button">Returner bok</button>
+  </form>
+</section>
+
   </main>
   
   <script src="scripts.js"></script>
