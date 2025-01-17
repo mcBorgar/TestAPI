@@ -1,151 +1,95 @@
 const express = require('express');
 const mysql = require('mysql2');
-const path = require('path');
+const bcrypt = require('bcrypt');
+const bodyParser = require('body-parser');
 
 const app = express();
 const port = 3000;
 
-// Middleware for å håndtere JSON og URL-encoded data
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Middleware for å lese JSON-data og tjene statiske filer
+app.use(bodyParser.json());
+app.use((req, res, next) => {
+    console.log(`Forespørsel til: ${req.path}`);
+    next();
+  });
+  
+app.use(express.static('public', { extensions: ['html'] }));
 
-// Statiske filer (HTML, CSS, JS)
-app.use(express.static('public'));
 
-// Opprett tilkobling til databasen
+// MySQL-tilkobling
 const db = mysql.createConnection({
   host: 'localhost',
-  user: 'root',        // Erstatt med ditt MySQL-brukernavn
-  password: 'password', // Erstatt med ditt MySQL-passord
-  database: 'TestAPI_' // Navnet på databasen du opprettet
+  user: 'library_user',
+  password: 'securepassword',
+  database: 'TestAPI_',
 });
 
-// Test databaseforbindelsen
 db.connect((err) => {
   if (err) {
-    console.error('Kunne ikke koble til databasen:', err.message);
+    console.error('Feil ved tilkobling til databasen:', err);
   } else {
-    console.log('Koblet til databasen!');
+    console.log('Tilkoblet til databasen.');
   }
 });
 
-// Standard route for å vise nettsiden
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Endepunkt for å legge inn bøker -----------------------------------------------------------------------
-app.post('/api/books', (req, res) => {
-  const { title, author, quantity } = req.body;
-
-  // SQL-spørring for å legge inn en ny bok
-  const sql = 'INSERT INTO books (title, author, quantity) VALUES (?, ?, ?)';
-  db.query(sql, [title, author, quantity], (err, result) => {
-    if (err) {
-      console.error('Feil ved lagring av bok:', err.message);
-      res.status(500).send({ message: 'Kunne ikke lagre bok.' });
-    } else {
-      console.log('Ny bok lagret:', result);
-      res.status(200).send({ message: 'Bok lagret!' });
+// Endepunkt: Registrer ny bruker
+app.post('/register', async (req, res) => {
+    const { username, password } = req.body;
+  
+    if (!username || !password) {
+      console.log('Manglende brukernavn eller passord.');
+      return res.status(400).json({ message: 'Brukernavn og passord er påkrevd.' });
     }
+  
+    try {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      console.log('Hashet passord:', hashedPassword);
+  
+      const query = 'INSERT INTO users (username, password) VALUES (?, ?)';
+      db.query(query, [username, hashedPassword], (err, result) => {
+        if (err) {
+          console.error('Databasefeil ved registrering:', err);
+          return res.status(500).json({ message: 'Feil ved registrering.' });
+        }
+        console.log('Ny bruker lagt til:', result);
+        res.status(201).json({ message: 'Bruker registrert!' });
+      });
+    } catch (err) {
+      console.error('Feil ved hashing av passord:', err);
+      res.status(500).json({ message: 'Serverfeil.' });
+    }
+  });
+  
+
+// Endepunkt: Logg inn
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ message: 'Brukernavn og passord er påkrevd.' });
+  }
+
+  const query = 'SELECT * FROM users WHERE username = ?';
+  db.query(query, [username], async (err, results) => {
+    if (err) {
+      console.error('Feil ved innlogging:', err);
+      return res.status(500).json({ message: 'Feil ved innlogging.' });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'Bruker ikke funnet.' });
+    }
+
+    const user = results[0];
+    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+    if (!isPasswordCorrect) {
+      return res.status(401).json({ message: 'Ugyldig passord.' });
+    }
+
+    res.status(200).json({ message: 'Innlogging vellykket!' });
   });
 });
 
-// Endepunkt for å låne ut og returnere bøker ------------------------------------------------------------
-app.post('/api/loans', (req, res) => {
-  const { student, title, action } = req.body;
-
-  if (action === 'loan') {
-    console.log('Starter utlånsprosessen for:', { student, title });
-
-    // Sjekk om boka finnes og har nok eksemplarer
-    const findBookSQL = 'SELECT * FROM books WHERE title = ?';
-    db.query(findBookSQL, [title], (err, results) => {
-      if (err) {
-        console.error('Feil ved sjekking av bok:', err.message);
-        return res.status(500).send({ message: 'Serverfeil. Prøv igjen senere.' });
-      }
-
-      console.log('Sjekker bok i databasen:', results);
-
-      if (results.length === 0) {
-        return res.status(404).send({ message: 'Bok finnes ikke i databasen.' });
-      }
-
-      const book = results[0];
-      if (book.quantity <= 0) {
-        return res.status(400).send({ message: 'Boka er ikke tilgjengelig for utlån.' });
-      }
-
-      console.log('Bok funnet, starter registrering av utlån:', book);
-
-      // Legg inn i loans-tabellen
-      const insertLoanSQL = 'INSERT INTO loans (student, title, book_id) VALUES (?, ?, ?)';
-      db.query(insertLoanSQL, [student, title, book.book_id], (err, loanResult) => {
-        if (err) {
-          console.error('Feil ved lagring av lån:', err.message);
-          return res.status(500).send({ message: 'Kunne ikke registrere utlånet.' });
-        }
-
-        console.log('Lån registrert:', loanResult);
-
-        // Oppdater quantity i books-tabellen
-        const updateBookSQL = 'UPDATE books SET quantity = quantity - 1 WHERE book_id = ?';
-        db.query(updateBookSQL, [book.book_id], (err, updateResult) => {
-          if (err) {
-            console.error('Feil ved oppdatering av bokantall:', err.message);
-            return res.status(500).send({ message: 'Kunne ikke oppdatere bokantall.' });
-          }
-
-          console.log('Bokantall oppdatert i databasen:', updateResult);
-          res.status(200).send({ message: 'Lån registrert!' });
-        });
-      });
-    });
-  } else if (action === 'return') {
-    console.log('Starter returprosessen for:', { student, title });
-
-    // Sjekk om lånet eksisterer
-    const findLoanSQL = 'SELECT * FROM loans WHERE title = ? AND student = ?';
-    db.query(findLoanSQL, [title, student], (err, results) => {
-      if (err) {
-        console.error('Feil ved sjekking av lån:', err.message);
-        return res.status(500).send({ message: 'Serverfeil. Prøv igjen senere.' });
-      }
-
-      if (results.length === 0) {
-        return res.status(404).send({ message: 'Ingen utlån funnet for denne boken og eleven.' });
-      }
-
-      console.log('Lån funnet, starter retur.');
-
-      // Fjern utlånet fra loans-tabellen
-      const deleteLoanSQL = 'DELETE FROM loans WHERE title = ? AND student = ?';
-      db.query(deleteLoanSQL, [title, student], (err, deleteResult) => {
-        if (err) {
-          console.error('Feil ved sletting av lån:', err.message);
-          return res.status(500).send({ message: 'Kunne ikke fjerne utlånet.' });
-        }
-
-        // Øk antall bøker i books-tabellen
-        const updateBookSQL = 'UPDATE books SET quantity = quantity + 1 WHERE title = ?';
-        db.query(updateBookSQL, [title], (err, updateResult) => {
-          if (err) {
-            console.error('Feil ved oppdatering av bokantall:', err.message);
-            return res.status(500).send({ message: 'Kunne ikke oppdatere bokantall.' });
-          }
-
-          console.log('Bok returnert og oppdatert i databasen.');
-          res.status(200).send({ message: 'Bok returnert!' });
-        });
-      });
-    });
-  } else {
-    res.status(400).send({ message: 'Ugyldig handling.' });
-  }
-});
-
-// Start serveren --------------------------------------------------------------------------------------
+// Start serveren
 app.listen(port, () => {
   console.log(`Server kjører på http://localhost:${port}`);
 });

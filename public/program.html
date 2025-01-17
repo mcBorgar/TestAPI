@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bokutlånssystem</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Bokutlånssystem</h1>
+  </header>
+  
+  <main>
+    <!-- Liste over bøker -->
+    <section id="book-list-section">
+      <h2>Tilgjengelige bøker</h2>
+      <ul id="book-list"></ul>
+    </section>
+
+    <!-- Legge til ny bok -->
+    <section id="add-book-section">
+      <h2>Legg til ny bok</h2>
+      <form id="add-book-form">
+        <label for="title">Tittel:</label>
+        <input type="text" id="title" name="title" required>
+        
+        <label for="author">Forfatter:</label>
+        <input type="text" id="author" name="author" required>
+        
+        <label for="quantity">Antall:</label>
+        <input type="number" id="quantity" name="quantity" min="1" required>
+        
+        <button type="button" id="add-book-button">Legg til bok</button>
+      </form>
+    </section>
+
+    <!-- Låne og returnere bøker -->
+    <section id="loan-book-section">
+      <h2>Låne/Returnere bøker</h2>
+      <form id="loan-book-form">
+        <label for="student">Elev:</label>
+        <input type="text" id="student" name="student" required>
+        
+        <label for="book-title">Boktittel:</label>
+        <input type="text" id="book-title" name="book-title" required>
+        
+        <label for="action">Handling:</label>
+        <select id="action" name="action" required>
+          <option value="loan">Lån bok</option>
+          <option value="return">Returner bok</option>
+        </select>
+        
+        <button type="button" id="loan-book-button">Utfør</button>
+      </form>
+    </section>
+  </main>
+  
+  <script src="scripts.js"></script>
+</body>
+</html>

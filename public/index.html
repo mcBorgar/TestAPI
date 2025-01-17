@@ -3,49 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Login</title>
     <link rel="stylesheet" href="style.css">
-    <title>Document</title>
-<body">
 </head>
-<header class="header">
-    <h1>BOKUTLÅN</h1>
-</header>
-    <main class="main">
-        <form id="bookForm" class="LeggInn" method="post" action="/api/books">
-            <h1>LEGG INN</h1>
-            <label for="title">Tittel:</label>
-            <input type="text" id="title" name="title" required>
-          
-            <label for="author">Forfatter:</label>
-            <input type="text" id="author" name="author" required>
-          
-            <label for="quantity">Antall:</label>
-            <input type="number" id="quantity" name="quantity" required>
-          
-            <button type="submit">Legg Til</button>
-            <button type="submit">Fjern</button>
-          </form>
-          
+<body>
+    <div id="login-container">
+        <h1>Library Login</h1>
+        <form id="login-form">
+            <label for="username">Brukernavn:</label>
+            <input type="text" id="username" name="username" placeholder="Skriv inn brukernavn" required>
+            <label for="password">Passord:</label>
+            <input type="password" id="password" name="password" placeholder="Skriv inn passord" required>
+            <button type="button" id="login-button">Logg inn</button>
+        </form>
+        <p>Har du ikke en bruker? <button type="button" id="register-button">Registrer deg</button></p>
+        <p id="error-message" style="color: red; display: none;"></p>
+    </div>
 
-          <form id="loanForm" class="LeggInn" method="post" action="/api/loans">
-            <h1>LÅN UT</h1>
-            <label for="student">Elev:</label>
-            <input type="text" id="student" name="student" required>
-          
-            <label for="title2">Tittel:</label>
-            <input type="text" id="title2" name="title" required>
-          
-            <label for="date">Dato:</label>
-            <input type="date" id="date" name="date" required>
-          
-            <button type="submit" name="action" value="loan">LÅNE UT</button>
-            <button type="submit" name="action" value="return">LEVER</button>
-          </form>
-          
-    </main>
+    <div id="register-container" style="display: none;">
+        <h1>Registrer bruker</h1>
+        <form id="register-form">
+            <label for="reg-username">Brukernavn:</label>
+            <input type="text" id="reg-username" name="username" placeholder="Skriv inn brukernavn" required>
+            <label for="reg-password">Passord:</label>
+            <input type="password" id="reg-password" name="password" placeholder="Skriv inn passord" required>
+            <button type="button" id="register-submit">Registrer</button>
+        </form>
+        <p id="register-error" style="color: red; display: none;"></p>
+    </div>
+
+    <script src="scripts.js"></script>
 </body>
-<script src="script.js"></script>
-
 </html>
-
-
