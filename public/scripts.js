@@ -199,3 +199,78 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Oppdater listen automatisk hvert 10. sekund
   setInterval(fetchBooks, 10000);
 });
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const loanBookButton = document.getElementById('loan-book-button');
+  const returnBookButton = document.getElementById('return-book-button');
+  const loansList = document.getElementById('loans-list');
+  let selectedLoanId = null;
+
+  // Hent og vis lånte bøker
+  async function fetchLoans() {
+    try {
+      const response = await fetch('/loans');
+      const loans = await response.json();
+      console.log('Lånte bøker mottatt:', loans); 
+      loansList.innerHTML = '';
+
+      loans.forEach(loan => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${loan.title} lånt av ${loan.student}`;
+        listItem.dataset.loanId = loan.id;
+
+        listItem.addEventListener('click', () => {
+          document.querySelectorAll('#loans-list li').forEach(li => li.classList.remove('selected'));
+          listItem.classList.add('selected');
+          selectedLoanId = loan.id;
+          returnBookButton.disabled = false;
+        });
+
+        loansList.appendChild(listItem);
+      });
+    } catch (error) {
+      console.error('Feil ved henting av lånte bøker:', error);
+    }
+  }
+
+  // Lån bok
+  loanBookButton.addEventListener('click', async () => {
+    const student = document.getElementById('student').value;
+    const title = document.getElementById('loan-title').value;
+
+    if (!student || !title) {
+      alert('Fyll ut alle feltene.');
+      return;
+    }
+
+    try {
+      const response = await fetch('/loan-book', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ student, title }),
+      });
+
+      const result = await response.json();
+      alert(result.message);
+      fetchLoans();
+    } catch (error) {
+      console.error('Feil ved låning av bok:', error);
+    }
+  });
+
+  // Returner bok
+  returnBookButton.addEventListener('click', async () => {
+    if (!selectedLoanId) return;
+
+    try {
+      const response = await fetch(`/return-book/${selectedLoanId}`, { method: 'DELETE' });
+      const result = await response.json();
+      alert(result.message);
+      fetchLoans();
+    } catch (error) {
+      console.error('Feil ved retur av bok:', error);
+    }
+  });
+
+  fetchLoans();
+});

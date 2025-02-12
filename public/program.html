@@ -8,56 +8,63 @@
   <link rel="icon" href="data:,">
 </head>
 <body>
-  <header>
-    <h1>Bokutlånssystem</h1>
-  </header>
   
   <main>
-    <!-- Liste over bøker -->
-    <section id="book-list-section">
-      <h2>Tilgjengelige bøker</h2>
-      <ul id="book-list"></ul>
-    </section>
-    <!-- Slett bok-seksjon -->
-    <section id="delete-book-section">
-      <h2>Slett bok</h2>
-      <p>Klikk på en bok for å velge den.</p>
-      <button type="button" id="delete-book-button" disabled>Slett valgt bok</button>
-    </section>
+    <header>
+      <h1>Bokutlånssystem</h1>
+    </header>
+    <div class="addrm">
+      <!-- Liste over bøker -->
+      <section id="book-list-section">
+        <h2>Tilgjengelige bøker</h2>
+        <ul id="book-list"></ul>
+        <section id="delete-book-section">
+          <button type="button" id="delete-book-button" disabled>Slett valgt bok</button>
+        </section>
+      </section>
+      <!-- Legge til ny bok -->
+      <section id="add-book-section">
+        <h2>Legg til ny bok</h2>
+        <form id="add-book-form">
+          <label for="title">Tittel:</label>
+          <input type="text" id="title" name="title" required>
+          
+          <label for="author">Forfatter:</label>
+          <input type="text" id="author" name="author" required>
+          
+          <label for="quantity">Antall:</label>
+          <input type="number" id="quantity" name="quantity" min="1" required>
+          
+          <button type="button" id="add-book-button">Legg til bok</button>
+        </form>
+      </section>
+    </div>
 
-
-    <!-- Legge til ny bok -->
-    <section id="add-book-section">
-      <h2>Legg til ny bok</h2>
-      <form id="add-book-form">
-        <label for="title">Tittel:</label>
-        <input type="text" id="title" name="title" required>
-        
-        <label for="author">Forfatter:</label>
-        <input type="text" id="author" name="author" required>
-        
-        <label for="quantity">Antall:</label>
-        <input type="number" id="quantity" name="quantity" min="1" required>
-        
-        <button type="button" id="add-book-button">Legg til bok</button>
-      </form>
-    </section>
-
-        <!-- Låne og returnere bøker -->
-        <!-- Låne og returnere bøker -->
-    <section id="loan-book-section">
-      <h2>Låne/Returnere bøker</h2>
-      <form id="loan-book-form">
-        <label for="student">Elev:</label>
-        <input type="text" id="student" name="student" required>
-        
-        <label for="book-title">Boktittel:</label>
-        <input type="text" id="book-title" name="book-title" required>
-        
-        <button type="button" id="loan-book-button">Lån bok</button>
-        <button type="button" id="return-book-button">Returner bok</button>
-      </form>
-    </section>
+    <div class="addrm">
+      <!-- Liste over lånte bøker -->
+      <section id="loaned-books-section">
+        <h2>Lånte bøker</h2>
+        <ul id="loans-list"></ul>
+        <section id="return-book-section">
+          <button type="button" id="return-book-button" disabled>Returner valgt bok</button>
+        </section>
+      </section>
+    
+      <!-- Låne bok -->
+      <section id="loan-book-section">
+        <h2>Lån bok</h2>
+        <form id="loan-book-form">
+          <label for="student">Elev:</label>
+          <input type="text" id="student" name="student" required>
+          
+          <label for="loan-title">Tittel:</label>
+          <input type="text" id="loan-title" name="loan-title" required>
+    
+          <button type="button" id="loan-book-button">Lån bok</button>
+        </form>
+      </section>
+    </div>
+    
 
   </main>
   

@@ -155,88 +155,7 @@ app.delete('/delete-book/:id', (req, res) => {
     res.status(200).json({ message: 'Bok slettet!' });
   });
 });
-
-
-  
-  
-  // Endepunkt: Låne ut bok
-app.post('/loan-book', (req, res) => {
-    const { student, title } = req.body;
-  
-    if (!student || !title) {
-      return res.status(400).json({ message: 'Elev og boktittel er påkrevd.' });
-    }
-  
-    const checkQuery = 'SELECT * FROM books WHERE title = ?';
-    db.query(checkQuery, [title], (err, results) => {
-      if (err) {
-        console.error('Feil ved å sjekke bok:', err);
-        return res.status(500).json({ message: 'Serverfeil.' });
-      }
-  
-      if (results.length === 0 || results[0].quantity <= 0) {
-        return res.status(404).json({ message: 'Boka er ikke tilgjengelig.' });
-      }
-  
-      const book = results[0];
-      const insertLoanQuery = 'INSERT INTO loans (student, title, book_id) VALUES (?, ?, ?)';
-      const updateBookQuery = 'UPDATE books SET quantity = quantity - 1 WHERE title = ?';
-  
-      db.query(insertLoanQuery, [student, title, book.book_id], (err) => {
-        if (err) {
-          console.error('Feil ved å legge til lån:', err);
-          return res.status(500).json({ message: 'Kunne ikke låne boka.' });
-        }
-  
-        db.query(updateBookQuery, [title], (err) => {
-          if (err) {
-            console.error('Feil ved å oppdatere bok:', err);
-            return res.status(500).json({ message: 'Kunne ikke oppdatere boka.' });
-          }
-          res.status(200).json({ message: 'Bok lånt ut!' });
-        });
-      });
-    });
-  });
-
-  // Endepunkt: Returnere bok
-app.post('/return-book', (req, res) => {
-    const { student, title } = req.body;
-  
-    if (!student || !title) {
-      return res.status(400).json({ message: 'Elev og boktittel er påkrevd.' });
-    }
-  
-    const checkLoanQuery = 'SELECT * FROM loans WHERE student = ? AND title = ?';
-    db.query(checkLoanQuery, [student, title], (err, results) => {
-      if (err) {
-        console.error('Feil ved å sjekke lån:', err);
-        return res.status(500).json({ message: 'Serverfeil.' });
-      }
-  
-      if (results.length === 0) {
-        return res.status(404).json({ message: 'Lånet eksisterer ikke.' });
-      }
-  
-      const deleteLoanQuery = 'DELETE FROM loans WHERE student = ? AND title = ? LIMIT 1';
-      const updateBookQuery = 'UPDATE books SET quantity = quantity + 1 WHERE title = ?';
-  
-      db.query(deleteLoanQuery, [student, title], (err) => {
-        if (err) {
-          console.error('Feil ved å slette lån:', err);
-          return res.status(500).json({ message: 'Kunne ikke returnere boka.' });
-        }
-  
-        db.query(updateBookQuery, [title], (err) => {
-          if (err) {
-            console.error('Feil ved å oppdatere bok:', err);
-            return res.status(500).json({ message: 'Kunne ikke oppdatere boka.' });
-          }
-          res.status(200).json({ message: 'Bok returnert!' });
-        });
-      });
-    });
-  });
+ 
   
 // Endepunkt: Hent liste over bøker
 app.get('/books', (req, res) => {
@@ -255,3 +174,97 @@ app.get('/books', (req, res) => {
 app.listen(port, () => {
   console.log(`Server kjører på http://localhost:${port}`);
 });
+
+
+// Endepunkt: Lån en bok
+app.post('/loan-book', (req, res) => {
+  const { student, title } = req.body;
+
+  if (!student || !title) {
+      return res.status(400).json({ message: 'Elev og boktittel er påkrevd.' });
+  }
+
+  const checkQuery = 'SELECT * FROM books WHERE title = ?';
+  db.query(checkQuery, [title], (err, results) => {
+      if (err) {
+          console.error('Feil ved å sjekke bok:', err);
+          return res.status(500).json({ message: 'Serverfeil.' });
+      }
+
+      if (results.length === 0 || results[0].quantity <= 0) {
+          return res.status(404).json({ message: 'Boka er ikke tilgjengelig.' });
+      }
+
+      const book = results[0];
+      const insertLoanQuery = 'INSERT INTO loans (student, title, book_id) VALUES (?, ?, ?)';
+      const updateBookQuery = 'UPDATE books SET quantity = quantity - 1 WHERE title = ?';
+
+      db.query(insertLoanQuery, [student, title, book.book_id], (err) => {
+          if (err) {
+              console.error('Feil ved å legge til lån:', err);
+              return res.status(500).json({ message: 'Kunne ikke låne boka.' });
+          }
+
+          db.query(updateBookQuery, [title], (err) => {
+              if (err) {
+                  console.error('Feil ved å oppdatere bok:', err);
+                  return res.status(500).json({ message: 'Kunne ikke oppdatere boka.' });
+              }
+              res.status(200).json({ message: 'Bok lånt ut!' });
+          });
+      });
+  });
+});
+
+// Endepunkt: Returnere en bok
+app.delete('/return-book/:id', (req, res) => {
+  const loanId = req.params.id;
+
+  if (!loanId) {
+      return res.status(400).json({ message: 'Låne-ID er påkrevd.' });
+  }
+
+  const checkLoanQuery = 'SELECT * FROM loans WHERE id = ?';
+  db.query(checkLoanQuery, [loanId], (err, results) => {
+      if (err) {
+          console.error('Feil ved å sjekke lån:', err);
+          return res.status(500).json({ message: 'Serverfeil.' });
+      }
+
+      if (results.length === 0) {
+          return res.status(404).json({ message: 'Lånet eksisterer ikke.' });
+      }
+
+      const deleteLoanQuery = 'DELETE FROM loans WHERE id = ?';
+      const updateBookQuery = 'UPDATE books SET quantity = quantity + 1 WHERE title = ?';
+
+      db.query(deleteLoanQuery, [loanId], (err) => {
+          if (err) {
+              console.error('Feil ved å slette lån:', err);
+              return res.status(500).json({ message: 'Kunne ikke returnere boka.' });
+          }
+
+          db.query(updateBookQuery, [results[0].title], (err) => {
+              if (err) {
+                  console.error('Feil ved å oppdatere bok:', err);
+                  return res.status(500).json({ message: 'Kunne ikke oppdatere boka.' });
+              }
+              res.status(200).json({ message: 'Bok returnert!' });
+          });
+      });
+  });
+});
+
+// Endepunkt: Hent liste over lånte bøker
+app.get('/loans', (req, res) => {
+  const query = 'SELECT * FROM loans';
+  db.query(query, (err, results) => {
+      if (err) {
+          console.error('Feil ved henting av lånte bøker:', err);
+          return res.status(500).json({ message: 'Kunne ikke hente lånte bøker.' });
+      }
+      res.status(200).json(results);
+  });
+});
+
+

@@ -8,9 +8,19 @@ body {
     margin: 0;
   }
   main {
+    display: flex;
+    flex-direction: column;
+
+  }
+  section {
+    border: 5px solid rgb(60, 207, 53);
+    height: fit-content;
+  }
+
+  .addrm {
     border: 5px solid red;
     display: flex;
-    flex-direction: row;
+    justify-content: space-evenly;
   }
 
   #login-container {
