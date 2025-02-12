@@ -18,6 +18,13 @@
       <h2>Tilgjengelige bøker</h2>
       <ul id="book-list"></ul>
     </section>
+    <!-- Slett bok-seksjon -->
+    <section id="delete-book-section">
+      <h2>Slett bok</h2>
+      <p>Klikk på en bok for å velge den.</p>
+      <button type="button" id="delete-book-button" disabled>Slett valgt bok</button>
+    </section>
+
 
     <!-- Legge til ny bok -->
     <section id="add-book-section">
@@ -36,21 +43,21 @@
       </form>
     </section>
 
-    <!-- Låne og returnere bøker -->
-    <!-- Låne og returnere bøker -->
-<section id="loan-book-section">
-  <h2>Låne/Returnere bøker</h2>
-  <form id="loan-book-form">
-    <label for="student">Elev:</label>
-    <input type="text" id="student" name="student" required>
-    
-    <label for="book-title">Boktittel:</label>
-    <input type="text" id="book-title" name="book-title" required>
-    
-    <button type="button" id="loan-book-button">Lån bok</button>
-    <button type="button" id="return-book-button">Returner bok</button>
-  </form>
-</section>
+        <!-- Låne og returnere bøker -->
+        <!-- Låne og returnere bøker -->
+    <section id="loan-book-section">
+      <h2>Låne/Returnere bøker</h2>
+      <form id="loan-book-form">
+        <label for="student">Elev:</label>
+        <input type="text" id="student" name="student" required>
+        
+        <label for="book-title">Boktittel:</label>
+        <input type="text" id="book-title" name="book-title" required>
+        
+        <button type="button" id="loan-book-button">Lån bok</button>
+        <button type="button" id="return-book-button">Returner bok</button>
+      </form>
+    </section>
 
   </main>
   

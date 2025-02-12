@@ -4,10 +4,15 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: auto;
     margin: 0;
   }
-  
+  main {
+    border: 5px solid red;
+    display: flex;
+    flex-direction: row;
+  }
+
   #login-container {
     background: #ffffff;
     padding: 20px;
@@ -26,6 +31,11 @@ body {
     display: block;
     text-align: left;
     margin: 10px 0 5px;
+  }
+
+  .selected {
+    background-color: #f8d7da;
+    cursor: pointer;
   }
   
   input {
@@ -53,4 +63,29 @@ body {
   #error-message {
     margin-top: 10px;
   }
-  
+  #book-list-section {
+  max-width: 400px; /* Juster bredden etter behov */
+  padding: 10px;
+  }
+
+  #book-list {
+    max-height: 300px; /* Høyde på boklisten */
+    overflow-y: auto; /* Aktiver vertikal scrolling */
+    border: 1px solid #ccc; /* Gir en tydelig ramme */
+    padding: 10px;
+    list-style-type: none; /* Fjerner punktmerking */
+  }
+
+  #book-list li {
+    padding: 5px;
+    cursor: pointer;
+    border-bottom: 1px solid #ddd; /* Tydelig skille mellom bøker */
+  }
+
+  #book-list li:hover {
+    background-color: #f0f0f0;
+  }
+
+  .selected {
+    background-color: #f8d7da !important; /* Markerer valgt bok */
+  }

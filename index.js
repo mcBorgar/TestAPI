@@ -125,6 +125,34 @@ app.post('/add-book', (req, res) => {
       }
     });
   });
+// Endepunkt: Slett en bok fra databasen
+app.delete('/delete-book/:id', (req, res) => {
+  const bookId = req.params.id;
+
+  if (!bookId) {
+    return res.status(400).json({ message: 'Bok-ID er påkrevd.' });
+  }
+
+  console.log(`Forsøker å slette bok med ID: ${bookId}`);
+
+  const deleteQuery = 'DELETE FROM books WHERE book_id = ?';
+  db.query(deleteQuery, [bookId], (err, result) => {
+    if (err) {
+      console.error('Feil ved sletting av bok:', err);
+      return res.status(500).json({ message: 'Kunne ikke slette boka.' });
+    }
+
+    if (result.affectedRows === 0) {
+      console.warn('Ingen bøker ble slettet. Sjekk at book_id er riktig.');
+      return res.status(404).json({ message: 'Bok ikke funnet.' });
+    }
+
+    console.log('Bok slettet:', result);
+    res.status(200).json({ message: 'Bok slettet!' });
+  });
+});
+
+
   
   
   // Endepunkt: Låne ut bok

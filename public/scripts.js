@@ -135,3 +135,63 @@ document.addEventListener('DOMContentLoaded', () => {
     console.error('Add book button not found');
   }
 });
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const bookList = document.getElementById('book-list');
+  const deleteBookButton = document.getElementById('delete-book-button');
+  let selectedBookId = null;
+
+  // Hent og vis bøker fra databasen
+  async function fetchBooks() {
+    try {
+      const response = await fetch('/books');
+      const books = await response.json();
+      bookList.innerHTML = '';
+
+      books.forEach(book => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${book.title} - ${book.author} (${book.quantity} stk)`;
+        listItem.dataset.bookId = book.book_id;
+
+        listItem.addEventListener('click', () => {
+          // Marker valgt bok
+          document.querySelectorAll('#book-list li').forEach(li => li.classList.remove('selected'));
+          listItem.classList.add('selected');
+          selectedBookId = book.book_id;
+          deleteBookButton.disabled = false;
+        });
+
+        bookList.appendChild(listItem);
+      });
+    } catch (error) {
+      console.error('Feil ved henting av bøker:', error);
+    }
+  }
+
+  // Slett valgt bok
+  deleteBookButton.addEventListener('click', async () => {
+    if (!selectedBookId) return;
+
+    if (!confirm('Er du sikker på at du vil slette denne boken?')) return;
+
+    try {
+      const response = await fetch(`/delete-book/${selectedBookId}`, {
+        method: 'DELETE',
+      });
+
+      const result = await response.json();
+      alert(result.message);
+
+      selectedBookId = null;
+      deleteBookButton.disabled = true;
+      fetchBooks(); // Oppdater boklisten etter sletting
+    } catch (error) {
+      console.error('Feil ved sletting av bok:', error);
+    }
+  });
+
+  fetchBooks(); // Last inn bøkene ved oppstart
+
+  // Oppdater listen automatisk hvert 10. sekund
+  setInterval(fetchBooks, 10000);
+});
