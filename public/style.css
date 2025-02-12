@@ -13,12 +13,12 @@ body {
 
   }
   section {
-    border: 5px solid rgb(60, 207, 53);
+    /* border: 5px solid rgb(60, 207, 53); */
     height: fit-content;
   }
 
   .addrm {
-    border: 5px solid red;
+    /* border: 5px solid red; */
     display: flex;
     justify-content: space-evenly;
   }
@@ -99,3 +99,30 @@ body {
   .selected {
     background-color: #f8d7da !important; /* Markerer valgt bok */
   }
+  #book-list, #loans-list {
+    width: 300px;
+    height: 200px;
+    border: 2px solid #ccc;
+    padding: 10px;
+    overflow-y: auto; /* Aktiverer scrolling */
+    background-color: #f9f9f9;
+    list-style: none;
+  }
+  
+  #book-list li, #loans-list li {
+    padding: 8px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #e6e6e6;
+  }
+  
+  #book-list li:hover, #loans-list li:hover {
+    background-color: #d4d4d4;
+  }
+  
+  #book-list li.selected, #loans-list li.selected {
+    background-color: #73A96F; /* Grønn for valgt bok */
+    color: white;
+  }
+  
