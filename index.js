@@ -224,7 +224,7 @@ app.delete('/return-book/:id', (req, res) => {
       return res.status(400).json({ message: 'Låne-ID er påkrevd.' });
   }
 
-  const checkLoanQuery = 'SELECT * FROM loans WHERE id = ?';
+  const checkLoanQuery = 'SELECT * FROM loans WHERE loan_id = ?';
   db.query(checkLoanQuery, [loanId], (err, results) => {
       if (err) {
           console.error('Feil ved å sjekke lån:', err);
@@ -235,7 +235,7 @@ app.delete('/return-book/:id', (req, res) => {
           return res.status(404).json({ message: 'Lånet eksisterer ikke.' });
       }
 
-      const deleteLoanQuery = 'DELETE FROM loans WHERE id = ?';
+      const deleteLoanQuery = 'DELETE FROM loans WHERE loan_id = ?';
       const updateBookQuery = 'UPDATE books SET quantity = quantity + 1 WHERE title = ?';
 
       db.query(deleteLoanQuery, [loanId], (err) => {
@@ -254,6 +254,8 @@ app.delete('/return-book/:id', (req, res) => {
       });
   });
 });
+
+
 
 // Endepunkt: Hent liste over lånte bøker
 app.get('/loans', (req, res) => {
