@@ -179,8 +179,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         method: 'DELETE',
       });
 
-      const result = await response.json();
+      console.log(response); // Logg hele responsobjektet
+      const text = await response.text(); // Hent responsen som tekst
+      console.log('Rårespons fra server:', text); // Se hva serveren faktisk sender
+      const result = JSON.parse(text); // Konverter til JSON manuelt
       alert(result.message);
+      
 
       selectedBookId = null;
       deleteBookButton.disabled = true;

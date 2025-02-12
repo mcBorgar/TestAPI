@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 
 const app = express();
 const port = 3000;
+app.use(express.json()); // Sørger for at Express kan tolke JSON-data
 
 // Middleware for å lese JSON-data og tjene statiske filer
 app.use(bodyParser.json());
@@ -126,6 +127,7 @@ app.post('/add-book', (req, res) => {
     });
   });
 // Endepunkt: Slett en bok fra databasen
+console.log('Sletterute registrert: DELETE /delete-book/:id');
 app.delete('/delete-book/:id', (req, res) => {
   const bookId = req.params.id;
 
@@ -139,8 +141,10 @@ app.delete('/delete-book/:id', (req, res) => {
   db.query(deleteQuery, [bookId], (err, result) => {
     if (err) {
       console.error('Feil ved sletting av bok:', err);
-      return res.status(500).json({ message: 'Kunne ikke slette boka.' });
+      return res.status(500).json({ message: 'Kunne ikke slette boka.', error: err });
     }
+
+    console.log(`Resultat av DELETE-spørring:`, result);
 
     if (result.affectedRows === 0) {
       console.warn('Ingen bøker ble slettet. Sjekk at book_id er riktig.');

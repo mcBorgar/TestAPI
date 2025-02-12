@@ -39,3 +39,6 @@ vs code
 github
 firefox
 terminal
+
+må fikse quantity i database 
+fjerne unødvendig dritt
