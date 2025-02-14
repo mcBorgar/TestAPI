@@ -42,3 +42,24 @@ terminal
 
 må fikse quantity i database 
 fjerne unødvendig dritt
+
+
+INSERT INTO students (name) VALUES 
+('Endre'),
+('Joakim'),
+('Sverre'),
+('Nore'),
+('Erling'),
+('Leander'),
+('Max'),
+('Borgar');
+
+
+
+
+
+salt på hver bruker
+og blokke side hvis ikke logget inn
+gjemme sql passord
+.env
+

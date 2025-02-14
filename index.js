@@ -1,19 +1,17 @@
-const express = require('express');
-const mysql = require('mysql2');
-const bcrypt = require('bcrypt');
-const bodyParser = require('body-parser');
-
-const app = express();
+const express = require('express');    //Variabler - moduler
+const mysql = require('mysql2'); // gjør at den forstår sql
+const bcrypt = require('bcrypt');  //hashing algoritme
+const bodyParser = require('body-parser'); //middleware som oversetter data over til json data så express kan håndtere det
+const app = express(); //rec,res. sjekker data i public
 const port = 3000;
-app.use(express.json()); // Sørger for at Express kan tolke JSON-data
+app.use(express.json()); // lese json
 
 // Middleware for å lese JSON-data og tjene statiske filer
-app.use(bodyParser.json());
+app.use(bodyParser.json());   //express bruk bodyparser for å lese json
 app.use((req, res, next) => {
     console.log(`Forespørsel til: ${req.path}`);
     next();
   });
-  
 app.use(express.static('public', { extensions: ['html'] }));
 
 
@@ -24,7 +22,7 @@ const db = mysql.createConnection({
   password: 'securepassword',
   database: 'TestAPI_',
 });
-
+// error melding hvis det ikke går
 db.connect((err) => {
   if (err) {
     console.error('Feil ved tilkobling til databasen:', err);
@@ -33,9 +31,9 @@ db.connect((err) => {
   }
 });
 
-// Endepunkt: Registrer ny bruker
-app.post('/register', async (req, res) => {
-    const { username, password } = req.body;
+// Registrer ny bruker, hashe med bcypt
+app.post('/register', async (req, res) => { //programmet sender data, url "/registrer" async, vente på at den går
+    const { username, password } = req.body;  //hente username og pass for å bruke i siden
   
     if (!username || !password) {
       console.log('Manglende brukernavn eller passord.');
@@ -43,8 +41,8 @@ app.post('/register', async (req, res) => {
     }
   
     try {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      console.log('Hashet passord:', hashedPassword);
+      const hashedPassword = await bcrypt.hash(password, 10); //"saltrounds"
+      console.log('Hashet passord:', hashedPassword);      //status
   
       const query = 'INSERT INTO users (username, password) VALUES (?, ?)';
       db.query(query, [username, hashedPassword], (err, result) => {
@@ -62,15 +60,15 @@ app.post('/register', async (req, res) => {
   });
   
 
-// Endepunkt: Logg inn
-app.post('/login', (req, res) => {
-  const { username, password } = req.body;
+///logg inn
+app.post('/login', (req, res) => {    //express redigerer login req res 
+  const { username, password } = req.body;    //henter user, pass fra body
 
-  if (!username || !password) {
+  if (!username || !password) {    //"!" mangler, || eller
     return res.status(400).json({ message: 'Brukernavn og passord er påkrevd.' });
   }
-
-  const query = 'SELECT * FROM users WHERE username = ?';
+//navn
+  const query = 'SELECT * FROM users WHERE username = ?';            //placeholder=?
   db.query(query, [username], async (err, results) => {
     if (err) {
       console.error('Feil ved innlogging:', err);
@@ -79,7 +77,7 @@ app.post('/login', (req, res) => {
     if (results.length === 0) {
       return res.status(404).json({ message: 'Bruker ikke funnet.' });
     }
-
+    //passord
     const user = results[0];
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) {
@@ -90,32 +88,32 @@ app.post('/login', (req, res) => {
   });
 });
 
-// Endepunkt: Legge til eller oppdatere bok
+//end-point legge til bok
 app.post('/add-book', (req, res) => {
-    const { title, author, quantity } = req.body;
+    const { title, author, quantity } = req.body;  ///req fra bod
   
     if (!title || !author || !quantity) {
       return res.status(400).json({ message: 'Tittel, forfatter og antall er påkrevd.' });
     }
   
-    const checkQuery = 'SELECT * FROM books WHERE title = ? AND author = ?';
-    db.query(checkQuery, [title, author], (err, results) => {
+    const checkQuery = 'SELECT * FROM books WHERE title = ? AND author = ?';  //checkoutquery tittel forfatter
+    db.query(checkQuery, [title, author], (err, results) => {    
       if (err) {
         console.error('Feil ved å sjekke bok:', err);
-        return res.status(500).json({ message: 'Serverfeil.' });
+        return res.status(500).json({ message: 'Serverfeil.' });  //error
       }
   
-      if (results.length > 0) {
+      if (results.length > 0) {   //✅
         const updateQuery = 'UPDATE books SET quantity = quantity + ? WHERE title = ? AND author = ?';
         db.query(updateQuery, [quantity, title, author], (err) => {
-          if (err) {
+          if (err) {  //err
             console.error('Feil ved å oppdatere bok:', err);
             return res.status(500).json({ message: 'Kunne ikke oppdatere boka.' });
           }
           res.status(200).json({ message: 'Bok oppdatert!' });
         });
-      } else {
-        const insertQuery = 'INSERT INTO books (title, author, quantity) VALUES (?, ?, ?)';
+      } else {   //riktig
+        const insertQuery = 'INSERT INTO books (title, author, quantity) VALUES (?, ?, ?)'; //array
         db.query(insertQuery, [title, author, quantity], (err) => {
           if (err) {
             console.error('Feil ved å legge til bok:', err);
@@ -126,9 +124,10 @@ app.post('/add-book', (req, res) => {
       }
     });
   });
-// Endepunkt: Slett en bok fra databasen
+
+//Slett Bok
 console.log('Sletterute registrert: DELETE /delete-book/:id');
-app.delete('/delete-book/:id', (req, res) => {
+app.delete('/delete-book/:id', (req, res) => {                      //url med id
   const bookId = req.params.id;
 
   if (!bookId) {
@@ -158,9 +157,9 @@ app.delete('/delete-book/:id', (req, res) => {
  
   
 // Endepunkt: Hent liste over bøker
-app.get('/books', (req, res) => {
-    const query = 'SELECT * FROM books';
-    db.query(query, (err, results) => {
+app.get('/books', (req, res) => {     //express leser/henter data til /books
+    const query = 'SELECT * FROM books';    //henter alle bøker fra books
+    db.query(query, (err, results) => {    //vi bruker den over, sjekke feil og gi melding
       if (err) {
         console.error('Feil ved henting av bøker:', err);
         return res.status(500).json({ message: 'Kunne ikke hente bøker.' });
@@ -268,5 +267,4 @@ app.get('/loans', (req, res) => {
       res.status(200).json(results);
   });
 });
-
 
